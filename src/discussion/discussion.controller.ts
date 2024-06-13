@@ -10,27 +10,27 @@ export class DiscussionController {
   constructor(private readonly discussionService: DiscussionService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
   async createDiscussion(@Body() createDiscussionDto: any) {
+    console.log("createDiscussionDto", createDiscussionDto)
     return this.discussionService.createDiscussion(createDiscussionDto);
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard('jwt'))
   async updateDiscussion(@Param('id') id: string, @Body() updateDiscussionDto: any) {
     return this.discussionService.updateDiscussion(id, updateDiscussionDto);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
   async deleteDiscussion(@Param('id') id: string) {
     return this.discussionService.deleteDiscussion(id);
   }
 
   @Get('tags')
   async getDiscussionsByTags(@Query('tags') tags: string[]) {
-    const tagIds = tags.map(tag => new Types.ObjectId(tag));
-    return this.discussionService.findDiscussionsByTags(tagIds);
+    console.log("Tags", tags)
+    // const tagIds = tags.map(tag => new String(tag));
+    // console.log("tagIds", tagIds)
+    return this.discussionService.findDiscussionsByTags(tags);
   }
 
   @Get('search')

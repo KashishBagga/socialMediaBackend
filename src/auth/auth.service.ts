@@ -24,7 +24,7 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.name, sub: user.id };
+    const payload = { email: user.email};
       if(!this.validateUser(user.email, user.password))
         return{
       error: "email or password is incorrect"}

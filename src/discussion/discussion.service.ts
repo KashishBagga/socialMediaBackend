@@ -24,7 +24,8 @@ export class DiscussionService {
     return this.discussionModel.findByIdAndDelete(id).exec();
   }
 
-  async findDiscussionsByTags(tags: Types.ObjectId[]): Promise<Discussion[]> {
+  async findDiscussionsByTags(tags: string[]): Promise<Discussion[]> {
+    console.log("tags", tags);
     return this.discussionModel.find({ hashtags: { $in: tags } }).exec();
   }
 

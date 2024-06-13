@@ -12,7 +12,7 @@ export class Discussion {
   image?: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
-  hashtags: Types.ObjectId[];
+  hashtags: string[];
 
   @Prop({ default: Date.now })
   createdOn: Date;
