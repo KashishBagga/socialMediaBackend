@@ -8,14 +8,21 @@ export class AuthController {
 
 
   @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Body() requestBody) {
+    return this.authService.login(requestBody);
   }
 
   @Post('signup')
   @Public()
   async signup(@Body() requestBody) {
-    console.log("req", requestBody);
+    // console.log("req", requestBody);
     return this.authService.signup(requestBody);
+  }
+
+  @Post('update')
+  @Public()
+  async update(@Body() requestBody) {
+    // console.log("req", requestBody);
+    return this.authService.update(requestBody);
   }
 }

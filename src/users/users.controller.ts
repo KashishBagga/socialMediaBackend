@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -11,18 +11,18 @@ export class UsersController {
   }
 
   @Get()
-  async findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.usersService.findOneById(id);
+  async findAll(@Query('name') name: string) {
+    console.log("name", name);
+    if (name) {
+      return this.usersService.findByExactName(name);
+    } else {
+      return this.usersService.findAll();
+    }
   }
 
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: any) {
-    return this.usersService.updateUser(id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
