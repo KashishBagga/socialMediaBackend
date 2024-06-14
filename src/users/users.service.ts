@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from './users.schema';
 
 @Injectable()
@@ -38,5 +38,45 @@ export class UsersService {
 
   async deleteUser(id: string): Promise<User> {
     return this.userModel.findByIdAndDelete(id).exec();
+  }
+  async followUser(userId: string, followId: string): Promise<User> {
+    const userObjectId = new Types.ObjectId(userId);
+    const followObjectId = new Types.ObjectId(followId);
+
+    const user = await this.userModel.findById(userObjectId);
+    const followUser = await this.userModel.findById(followObjectId);
+
+    if (!user || !followUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.following.includes(followObjectId)) {
+      user.following.push(followObjectId);
+      followUser.followers.push(userObjectId);
+      await followUser.save();
+      await user.save();
+    }
+
+    return user;
+  }
+
+  async unfollowUser(userId: string, unfollowId: string): Promise<User> {
+    const userObjectId = new Types.ObjectId(userId);
+    const unfollowObjectId = new Types.ObjectId(unfollowId);
+
+    const user = await this.userModel.findById(userObjectId);
+    const unfollowUser = await this.userModel.findById(unfollowObjectId);
+
+    if (!user || !unfollowUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.following = user.following.filter(followId => !followId.equals(unfollowObjectId));
+    unfollowUser.followers = unfollowUser.followers.filter(followerId => !followerId.equals(userObjectId));
+
+    await unfollowUser.save();
+    await user.save();
+
+    return user;
   }
 }

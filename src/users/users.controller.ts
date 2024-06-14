@@ -29,4 +29,14 @@ export class UsersController {
   async remove(@Param('id') id: string) {
     return this.usersService.deleteUser(id);
   }
+
+  @Post(':id/follow/:followId')
+  async followUser(@Param('id') userId: string, @Param('followId') followId: string) {
+    return this.usersService.followUser(userId, followId);
+  }
+
+  @Post(':id/unfollow/:unfollowId')
+  async unfollowUser(@Param('id') userId: string, @Param('unfollowId') unfollowId: string) {
+    return this.usersService.unfollowUser(userId, unfollowId);
+  }
 }

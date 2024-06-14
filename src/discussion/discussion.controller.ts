@@ -1,17 +1,22 @@
 // discussion.controller.ts
 
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { DiscussionService } from './discussion.service';
 import { Types } from 'mongoose';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('discussions')
 export class DiscussionController {
   constructor(private readonly discussionService: DiscussionService) {}
 
   @Post()
-  async createDiscussion(@Body() createDiscussionDto: any) {
+  @UseInterceptors(FileInterceptor('image'))
+  async createDiscussion(@Body() createDiscussionDto: any,  @UploadedFile() file: Express.Multer.File) {
     console.log("createDiscussionDto", createDiscussionDto)
+    if (file) {
+      createDiscussionDto.image = file.path; // Add the file path to the DTO
+    }
     return this.discussionService.createDiscussion(createDiscussionDto);
   }
 
