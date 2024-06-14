@@ -1,34 +1,51 @@
 // discussion.controller.ts
 
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, UseInterceptors, UploadedFile, Request, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { DiscussionService } from './discussion.service';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CommentService } from 'src/comments/comment.service';
+import { LikeService } from 'src/likes/like.service';
 
 @Controller('discussions')
 export class DiscussionController {
-  constructor(private readonly discussionService: DiscussionService) {}
+  constructor(    
+    private readonly discussionService: DiscussionService,
+    private readonly commentService: CommentService,
+    private readonly likeService: LikeService,
+  ) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  async createDiscussion(@Body() createDiscussionDto: any,  @UploadedFile() file: Express.Multer.File) {
+  async createDiscussion(@Body() createDiscussionDto: any,  @UploadedFile() file: Express.Multer.File, @Body('userId') userId: string) {
     console.log("createDiscussionDto", createDiscussionDto)
     if (file) {
       createDiscussionDto.image = file.path; // Add the file path to the DTO
     }
-    return this.discussionService.createDiscussion(createDiscussionDto);
+    return this.discussionService.createDiscussion(createDiscussionDto, userId);
   }
 
   @Put(':id')
-  async updateDiscussion(@Param('id') id: string, @Body() updateDiscussionDto: any) {
-    return this.discussionService.updateDiscussion(id, updateDiscussionDto);
-  }
+async updateDiscussion(
+  @Param('id') id: string,
+  @Body() updateDiscussionDto: any,
+  @Body('userId') userId: string,
+  @Request() req: any // Assuming you get user info from request
+) {
+  return this.discussionService.updateDiscussion(id, updateDiscussionDto, userId);
+}
 
-  @Delete(':id')
-  async deleteDiscussion(@Param('id') id: string) {
-    return this.discussionService.deleteDiscussion(id);
-  }
+@Delete(':id')
+async deleteDiscussion(
+  @Param('id') id: string,
+  @Request() req: any, // Assuming user info from request
+) {
+  // Delete the discussion
+  await this.discussionService.deleteDiscussion(id);
+
+  return { message: `Discussion with ID ${id} has been deleted` };
+}
 
   @Get('tags')
   async getDiscussionsByTags(@Query('tags') tags: string[]) {
@@ -41,5 +58,16 @@ export class DiscussionController {
   @Get('search')
   async searchDiscussionsByText(@Query('text') searchText: string) {
     return this.discussionService.findDiscussionsByText(searchText);
+  }
+
+  @Post(':postId/comments')
+  async createComment(@Param('postId') postId: string, @Body() createCommentDto: any) {
+    createCommentDto.postId = postId;
+    return this.commentService.createComment(createCommentDto);
+  }
+
+  @Post(':postId/likes')
+  async createLike(@Param('postId') postId: string, @Body('userId') userId : string) {
+    return this.likeService.createLike(userId, postId);
   }
 }

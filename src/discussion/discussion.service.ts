@@ -1,6 +1,6 @@
 // discussion.service.ts
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Discussion, DiscussionDocument } from './discussion.schema';
@@ -11,17 +11,24 @@ export class DiscussionService {
     @InjectModel(Discussion.name) private readonly discussionModel: Model<DiscussionDocument>,
   ) {}
 
-  async createDiscussion(discussion: Discussion): Promise<Discussion> {
-    const createdDiscussion = new this.discussionModel(discussion);
+  
+  async createDiscussion(createDiscussionDto: any, userId: string): Promise<Discussion> {
+    const createdDiscussion = new this.discussionModel({ ...createDiscussionDto, userId });
     return createdDiscussion.save();
   }
+  async updateDiscussion(id: string, update: Partial<Discussion>, userId: string): Promise<Discussion | null> {
+    // Ensure userId is added to the update
+    const updateWithUserId = { ...update, userId };
 
-  async updateDiscussion(id: string, update: Partial<Discussion>): Promise<Discussion | null> {
-    return this.discussionModel.findByIdAndUpdate(id, update, { new: true }).exec();
+    // Update and return the updated discussion
+    return this.discussionModel.findByIdAndUpdate(id, updateWithUserId, { new: true }).exec();
   }
 
-  async deleteDiscussion(id: string): Promise<Discussion | null> {
-    return this.discussionModel.findByIdAndDelete(id).exec();
+  async deleteDiscussion(id: string): Promise<void> {
+    const result = await this.discussionModel.deleteOne({ _id: id }).exec();
+    if (result.deletedCount === 0) {
+      throw new NotFoundException(`Discussion with ID ${id} not found`);
+    }
   }
 
   async findDiscussionsByTags(tags: string[]): Promise<Discussion[]> {
