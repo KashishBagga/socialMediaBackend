@@ -7,19 +7,19 @@ import { Types } from 'mongoose';
 export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
-  @Post(':targetId')
-  async createLike(
-    @Request() req: any,
-    @Param('targetId') targetId: string,
-  ) {
-    try {
-      const userId = req.user.userId;
-      const like = await this.likeService.createLike(userId, targetId);
-      return { message: 'Like created successfully', like };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
+  // @Post(':targetId')
+  // async createLike(
+  //   @Request() req: any,
+  //   @Param('targetId') targetId: string,
+  // ) {
+  //   try {
+  //     const userId = req.user.userId;
+  //     const like = await this.likeService.createLike(userId, targetId);
+  //     return { message: 'Like created successfully', like };
+  //   } catch (error) {
+  //     throw new BadRequestException(error.message);
+  //   }
+  // }
 
   @Delete(':targetId')
   async deleteLike(

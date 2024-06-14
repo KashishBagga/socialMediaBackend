@@ -53,4 +53,14 @@ export class DiscussionService {
 
     return discussion;
   }
+  async getViewCountById(id: string): Promise<number> {
+    const discussion = await this.discussionModel.findById(id).exec();
+
+    if (!discussion) {
+      throw new NotFoundException('Discussion not found');
+    }
+
+    // Return the specific viewCount number
+    return discussion.viewCount;
+  }
 }

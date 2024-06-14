@@ -9,15 +9,27 @@ export class CommentController { // or ReplyController
     private readonly likeService: LikeService,
     private readonly commentService: CommentService
   ) {}
-
+  @Post(':commentId/likes')
+  async createLike(
+    @Body('userId') userId: string,
+    @Param('commentId') commentId: string,
+  ) {
+    try {
+      console.log('userId', userId, 'commentId', commentId);
+      const like = await this.likeService.createCommentLike(userId, commentId);
+      return { message: 'Like created successfully', like };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  
   @Delete(':commentId')
   async deleteComment(
     @Request() req: any,
     @Param('commentId') commentId: string,
   ) {
     try {
-      const userId = req.user.userId;
-      await this.commentService.deleteComment(userId, new Types.ObjectId(commentId));
+      await this.commentService.deleteComment(new Types.ObjectId(commentId));
       return { message: 'Comment deleted successfully' };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -26,32 +38,17 @@ export class CommentController { // or ReplyController
 
   @Put(':commentId')
   async updateComment(
-    @Request() req: any,
     @Param('commentId') commentId: string,
     @Body() updateCommentDto: any,
   ) {
     try {
-      const userId = req.user.userId;
-      const updatedComment = await this.commentService.updateComment(userId, new Types.ObjectId(commentId), updateCommentDto);
+      const updatedComment = await this.commentService.updateComment(new Types.ObjectId(commentId), updateCommentDto);
       return { message: 'Comment updated successfully', comment: updatedComment };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
   
-  @Post(':commentId/likes')
-  async createLike(
-    @Request() req: any,
-    @Param('commentId') commentId: string,
-  ) {
-    try {
-      const userId = req.user.userId;
-      const like = await this.likeService.createLike(userId, commentId);
-      return { message: 'Like created successfully', like };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
 
   @Delete(':commentId/likes')
   async deleteLike(
@@ -72,8 +69,19 @@ export class CommentController { // or ReplyController
     @Param('commentId') commentId: string,
     @Body() createReplyDto: any
   ) {
-    createReplyDto.parentId = commentId; // Assign parentId from route parameter
-    const userId = 'userIdFromToken'; // You should extract this from the JWT token in a real application
-    return this.commentService.createReply(new Types.ObjectId(userId), createReplyDto);
+    try {
+      // Validate commentId format (should be a valid ObjectId)
+      console.log("creat", createReplyDto, commentId)
+      if (!Types.ObjectId.isValid(commentId)) {
+        throw new BadRequestException('Invalid commentId format');
+      }
+      createReplyDto.parentId = commentId; // Assign parentId from route parameter
+      const userId = createReplyDto.userId; // Replace with actual user ID extraction from JWT
+
+      // Pass valid ObjectId to service method
+      return this.commentService.createReply(new Types.ObjectId(userId), createReplyDto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

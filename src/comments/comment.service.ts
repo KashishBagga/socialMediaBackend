@@ -25,16 +25,16 @@ export class CommentService {
     return savedComment;
   }
 
-  async deleteComment(userId: Types.ObjectId, commentId: Types.ObjectId): Promise<void> {
-    const comment = await this.commentModel.findOne({ _id: commentId, userId }).exec();
+  async deleteComment(commentId: Types.ObjectId): Promise<void> {
+    const comment = await this.commentModel.findOne({ _id: commentId}).exec();
     if (!comment) {
       throw new NotFoundException('Comment not found or you are not authorized to delete');
     }
-    await this.commentModel.deleteOne({ _id: commentId, userId }).exec(); // Correct method to delete the document
+    await this.commentModel.deleteOne({ _id: commentId}).exec(); // Correct method to delete the document
   }
 
-  async updateComment(userId: Types.ObjectId, commentId: Types.ObjectId, updateCommentDto: any): Promise<Comment> {
-    const comment = await this.commentModel.findOne({ _id: commentId, userId }).exec();
+  async updateComment(commentId: Types.ObjectId, updateCommentDto: any): Promise<Comment> {
+    const comment = await this.commentModel.findOne({ _id: commentId }).exec();
     if (!comment) {
       throw new NotFoundException('Comment not found or you are not authorized to update');
     }
@@ -51,9 +51,10 @@ export class CommentService {
   
     const reply = new this.commentModel({
       userId,
-      content: createReplyDto.content,
+      text: createReplyDto.text,
       replies: [],
       likes: [],
+      postId : createReplyDto.parentId
     });
   
     const savedReply = await reply.save();

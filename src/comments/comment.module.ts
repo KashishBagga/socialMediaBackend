@@ -4,6 +4,7 @@ import { CommentService } from './comment.service';
 import { Comment, CommentSchema } from './comment.schema';
 import { Discussion, DiscussionSchema } from 'src/discussion/discussion.schema';
 import { LikeModule } from 'src/likes/like.module';
+import { CommentController } from './comment.controller';
 
 
 @Module({
@@ -12,6 +13,7 @@ import { LikeModule } from 'src/likes/like.module';
     MongooseModule.forFeature([{ name: Discussion.name, schema: DiscussionSchema }]),
     LikeModule
   ],
+  controllers:[CommentController],
   providers: [CommentService],
   exports: [CommentService],
 })
