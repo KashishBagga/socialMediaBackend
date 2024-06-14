@@ -39,4 +39,18 @@ export class DiscussionService {
   async findDiscussionsByText(searchText: string): Promise<Discussion[]> {
     return this.discussionModel.find({ text: { $regex: searchText, $options: 'i' } }).exec();
   }
+
+  async getDiscussionById(id: string): Promise<Discussion> {
+    const discussion = await this.discussionModel.findByIdAndUpdate(
+      id,
+      { $inc: { viewCount: 1 } }, // Increment view count by 1
+      { new: true }
+    ).exec();
+
+    if (!discussion) {
+      throw new NotFoundException('Discussion not found');
+    }
+
+    return discussion;
+  }
 }

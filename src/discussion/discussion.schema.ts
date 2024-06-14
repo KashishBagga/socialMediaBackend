@@ -23,6 +23,10 @@ export class Discussion extends Document {
 
   @Prop([{ type: Types.ObjectId, ref: 'Like' }])
   likes: Types.ObjectId[];
+
+
+  @Prop({ default: 0 })
+  viewCount: number; // Add this line
 }
 
 export const DiscussionSchema = SchemaFactory.createForClass(Discussion);

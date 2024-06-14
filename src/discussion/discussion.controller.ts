@@ -16,6 +16,12 @@ export class DiscussionController {
     private readonly likeService: LikeService,
   ) {}
 
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
+  async getDiscussionById(@Param('id') id: string) {
+    return this.discussionService.getDiscussionById(id);
+  }
+  
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async createDiscussion(@Body() createDiscussionDto: any,  @UploadedFile() file: Express.Multer.File, @Body('userId') userId: string) {
@@ -70,4 +76,5 @@ async deleteDiscussion(
   async createLike(@Param('postId') postId: string, @Body('userId') userId : string) {
     return this.likeService.createLike(userId, postId);
   }
+
 }

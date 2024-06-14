@@ -14,6 +14,9 @@ export class Comment extends Document {
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Like' }] })
   likes: Types.ObjectId[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Comment' }] })
+  replies: Types.ObjectId[]; 
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
